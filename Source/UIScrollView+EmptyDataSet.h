@@ -36,6 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)reloadEmptyDataSet;
 
+
+/**
+Manually swizzle UITableView/UICollectionView methods. Workaround to make DZNEmptyDataSet more flexible. For instance to support AsyncDisplayKit
+ */
+- (void)swizzleEmptyDataSet;
+
+
 @end
 
 
@@ -154,6 +161,15 @@ NS_ASSUME_NONNULL_BEGIN
  @return The space height between elements.
  */
 - (CGFloat)spaceHeightForEmptyDataSet:(UIScrollView *)scrollView;
+
+/**
+ Asks the data source about the number of items in data set. Overrides info from UITableView/UICollectionView dataSource
+ 
+ @param scrollView A scrollView subclass object informing the delegate.
+ @return The number of items.
+ */
+
+- (NSInteger)numberOfItemsForEmptyDataSet:(UIScrollView *)scrollView;
 
 @end
 

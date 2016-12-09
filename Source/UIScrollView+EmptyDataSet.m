@@ -122,6 +122,12 @@ static char const * const kEmptyDataSetView =       "emptyDataSetView";
         return items;
     }
     
+    id<DZNEmptyDataSetSource> emptyDataSetSource = self.emptyDataSetSource;
+    if ( emptyDataSetSource && [emptyDataSetSource respondsToSelector:@selector(numberOfItemsForEmptyDataSet:)]) {
+        items = [emptyDataSetSource numberOfItemsForEmptyDataSet:self];
+        return items;
+    }
+    
     // UITableView support
     if ([self isKindOfClass:[UITableView class]]) {
         
@@ -390,14 +396,8 @@ static char const * const kEmptyDataSetView =       "emptyDataSetView";
 
 #pragma mark - Setters (Public)
 
-- (void)setEmptyDataSetSource:(id<DZNEmptyDataSetSource>)datasource
+- (void)swizzleEmptyDataSet
 {
-    if (!datasource || ![self dzn_canDisplay]) {
-        [self dzn_invalidate];
-    }
-    
-    objc_setAssociatedObject(self, kEmptyDataSetSource, [[DZNWeakObjectContainer alloc] initWithWeakObject:datasource], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    
     // We add method sizzling for injecting -dzn_reloadData implementation to the native -reloadData implementation
     [self swizzleIfPossible:@selector(reloadData)];
     
@@ -405,6 +405,15 @@ static char const * const kEmptyDataSetView =       "emptyDataSetView";
     if ([self isKindOfClass:[UITableView class]]) {
         [self swizzleIfPossible:@selector(endUpdates)];
     }
+}
+
+- (void)setEmptyDataSetSource:(id<DZNEmptyDataSetSource>)datasource
+{
+    if (!datasource || ![self dzn_canDisplay]) {
+        [self dzn_invalidate];
+    }
+    
+    objc_setAssociatedObject(self, kEmptyDataSetSource, [[DZNWeakObjectContainer alloc] initWithWeakObject:datasource], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (void)setEmptyDataSetDelegate:(id<DZNEmptyDataSetDelegate>)delegate
